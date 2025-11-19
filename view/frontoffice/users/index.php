@@ -58,6 +58,8 @@
 						<li><a href="#">Courses</a></li>
 						<li><a href="blog.html">Blog</a></li>
 						<li><a href="contact.html">Contact</a></li>
+						<li><a href="login.php"><i class="fa fa-user"></i> User</a></li>
+
 					</ul>
 				</nav>
 				<!-- /Navigation -->
