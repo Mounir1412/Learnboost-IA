@@ -31,40 +31,57 @@
 	<body>
 
 		<!-- Header -->
-		<header id="header">
-			<div class="container">
+<header id="header">
+    <div class="container">
 
-				<div class="navbar-header">
-					<!-- Logo -->
-					<div class="navbar-brand">
-						<a class="logo" href="index.html">
-							<img src="./img/logo.png" alt="logo">
-						</a>
-					</div>
-					<!-- /Logo -->
+        <div class="navbar-header">
+            <!-- Logo -->
+            <div class="navbar-brand">
+                <a class="logo" href="index.html">
+                    <img src="./img/logo.png" alt="logo">
+                </a>
+            </div>
+            <!-- /Logo -->
 
-					<!-- Mobile toggle -->
-					<button class="navbar-toggle">
-						<span></span>
-					</button>
-					<!-- /Mobile toggle -->
-				</div>
+            <!-- Mobile toggle -->
+            <button class="navbar-toggle">
+                <span></span>
+            </button>
+            <!-- /Mobile toggle -->
+        </div>
 
-				<!-- Navigation -->
-				<nav id="nav">
-					<ul class="main-menu nav navbar-nav navbar-right">
-						<li><a href="index.html">Home</a></li>
-						<li><a href="#">About</a></li>
-						<li><a href="#">Courses</a></li>
-						<li><a href="blog.html">Blog</a></li>
-						<li><a href="contact.html">Contact</a></li>
-					</ul>
-				</nav>
-				<!-- /Navigation -->
+        <!-- Navigation -->
+       <!-- Navigation -->
+<nav id="nav">
+    <ul class="main-menu nav navbar-nav navbar-right">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Courses</a></li>
+        <li><a href="blog.html">Blog</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <!-- Nouveau menu User avec dropdown amélioré -->
+        <li class="dropdown user-menu">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-user-circle"></i>
+                <span class="user-text">Mon compte</span>
+                <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu user-dropdown">
+                <li><a href="login.php"><i class="fa fa-sign-in"></i> Connexion</a></li>
+                <li><a href="register.php"><i class="fa fa-user-plus"></i> Inscription</a></li>
+                <li><a href="profil.php"><i class="fa fa-id-card"></i> Mon Profil</a></li>
+                <li role="separator" class="divider"></li>
+                <li><a href="logout.php"><i class="fa fa-sign-out"></i> Déconnexion</a></li>
+            </ul>
+        </li>
+    </ul>
+</nav>
+<!-- /Navigation -->
+        <!-- /Navigation -->
 
-			</div>
-		</header>
-		<!-- /Header -->
+    </div>
+</header>
+<!-- /Header -->
 
 		<!-- Hero-area -->
 		<div class="hero-area section">

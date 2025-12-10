@@ -1,101 +1,117 @@
 <?php
-
-require_once 'model/UserModel.php';
+require __DIR__ . "/../model/config.php";
+require __DIR__ . "/../model/user.php";
 
 class UserController {
 
-    // -------------------------
-    // LOGIN (connexion)
-    // -------------------------
-    public function login() {
+    // 🔥 Tendance des inscriptions
+    public function getRegistrationTrend($days = 30) {
+        return User::getAccountRegistrationTrend($days);
+    }
 
-        // Si le formulaire n'a pas été envoyé, on affiche juste la page login
-        if (!isset($_POST['email'])) {
-            require 'views/frontoffice/user/login.php';
-            return;
-        }
+    // Afficher tous les utilisateurs
+    function getAllUsers() {
+        $sql = "SELECT * FROM user"; 
+        $db = config::getConnexion();
 
-        // 1) Récupérer les données du formulaire
-        $email = $_POST['email'];
-        $password = $_POST['password'];
-
-        // 2) Appeler le modèle
-        $model = new UserModel();
-        $user = $model->login($email, $password);
-
-        // 3) Vérifier si l'utilisateur existe
-        if ($user) {
-            session_start();
-            $_SESSION['user'] = [
-                'nom' => $user->getNom(),
-                'email' => $user->getEmail(),
-                'role' => $user->getRole(),
-                'niveau' => $user->getNiveau()
-            ];
-
-            // Aller au profil
-            require 'views/frontoffice/user/profile.php';
-
-        } else {
-            // Erreur → retour login
-            $error = "Email ou mot de passe incorrect";
-            require 'views/frontoffice/user/login.php';
+        try {
+            $query = $db->prepare($sql);
+            $query->execute();
+            return $query->fetchAll();
+        } catch (Exception $e) {
+            echo ("Erreur : " . $e->getMessage());
         }
     }
 
-    // -------------------------
-    // REGISTER (inscription)
-    // -------------------------
-    public function register() {
+    // Ajouter un utilisateur
+    function addUser($user) {
+        $sql = "INSERT INTO user (id, nom, prenom, email, password, role) 
+                VALUES (NULL, :nom, :prenom, :email, :password, :role)";
 
-        // si le formulaire n'est pas envoyé → afficher la page inscription
-        if (!isset($_POST['email'])) {
-            require 'views/frontoffice/user/register.php';
-            return;
+        $db = config::getConnexion();
+
+        try {
+            $query = $db->prepare($sql);
+
+            $query->bindValue(':nom', $user->getNom());
+            $query->bindValue(':prenom', $user->getPrenom());
+            $query->bindValue(':email', $user->getEmail());
+            $query->bindValue(':password', $user->getPassword());
+            $query->bindValue(':role', $user->getRole());
+
+            $query->execute();
+        } catch (Exception $e) {
+            echo ("Erreur : " . $e->getMessage());
         }
-
-        // récupérer données
-        $nom = $_POST['nom'];
-        $email = $_POST['email'];
-        $password = $_POST['password'];
-
-        // créer un objet User
-        $user = new User($nom, $email, $password);
-
-        // appeler le modèle
-        $model = new UserModel();
-        $model->addUser($user);
-
-        // retour au login
-        $success = "Compte créé avec succès ! Connectez-vous.";
-        require 'views/frontoffice/user/login.php';
     }
 
+    // Modifier utilisateur
+    public function updateUser($user, $id) {
+        $sql = "UPDATE user 
+                SET nom = :nom, prenom = :prenom, email = :email 
+                WHERE id = :id";
 
-    // -------------------------
-    // PROFIL
-    // -------------------------
-    public function profile() {
-        session_start();
+        $db = config::getConnexion();
+        $stmt = $db->prepare($sql);
 
-        if (!isset($_SESSION['user'])) {
-            header("Location: index.php?page=login");
-            exit;
+        $stmt->bindValue(':nom', $user->getNom());
+        $stmt->bindValue(':prenom', $user->getPrenom());
+        $stmt->bindValue(':email', $user->getEmail());
+        $stmt->bindValue(':id', $id);
+
+        try {
+            $stmt->execute();
+        } catch (Exception $e) {
+            echo "Erreur : " . $e->getMessage();
         }
-
-        require 'views/frontoffice/user/profile.php';
     }
 
-
-    // -------------------------
-    // LOGOUT
-    // -------------------------
-    public function logout() {
-        session_start();
-        session_destroy();
-
-        header("Location: index.php?page=login");
-        exit;
+    // Supprimer
+    public function deleteUser($id) {
+        $sql = "DELETE FROM user WHERE id = :id";
+        $db = config::getConnexion();
+        $stmt = $db->prepare($sql);
+        try {
+            $stmt->execute(['id' => $id]);
+        } catch (Exception $e) {
+            echo "Erreur : " . $e->getMessage();
+        }
     }
+
+    // Récupérer par ID
+    function showUser($id) {
+        $sql = "SELECT * FROM user WHERE id = :id";
+        $db = config::getConnexion();
+
+        try {
+            $query = $db->prepare($sql);
+            $query->execute(['id' => $id]);
+            return $query->fetch();
+        } catch (Exception $e) {
+            echo "Erreur : " . $e->getMessage();
+        }
+    }
+    // -----------------------------
+// Dashboard Counters
+// -----------------------------
+public function countUsers() {
+    $sql = "SELECT COUNT(*) AS total FROM user";
+    $db = config::getConnexion();
+    return $db->query($sql)->fetch()['total'];
 }
 
+public function countTeachers() {
+    $sql = "SELECT COUNT(*) AS total FROM user WHERE role = 'enseignant'";
+    $db = config::getConnexion();
+    return $db->query($sql)->fetch()['total'];
+}
+
+public function countStudents() {
+    $sql = "SELECT COUNT(*) AS total FROM user WHERE role = 'etudiant'";
+    $db = config::getConnexion();
+    return $db->query($sql)->fetch()['total'];
+}
+
+}
+
+?>
