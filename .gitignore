@@ -1,0 +1,13 @@
+.env
+/View/FrontOffice/chatbot_debug.log
+/logs/
+/vendor/
+/node_modules/
+.DS_Store
+*.log
+
+# Local config and credential files (do NOT commit these)
+config.php
+test-smtp-config.php
+test-smtp-detailed.php
+test-smtp-*.php
