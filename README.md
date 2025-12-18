@@ -1,13 +1,52 @@
-# Learnboost-IA
+LearnBoost
 
-This is the Learnboost-IA PHP project. The canonical repository is: https://github.com/Mounir1412/Learnboost-IA
+LearnBoost is a simple tutoring platform that allows tutors to create courses and add quizzes so students can learn and test their knowledge online.
 
-Important: the file `config.php` contains local credentials and is excluded from version control (see `.gitignore`). Before running the project, create a local `config.php` with your database and SMTP settings.
+What LearnBoost Does
 
-To contribute:
+LearnBoost helps tutors and students by providing:
 
-1. Initialize Git (if not already): `git init`
-2. Add files: `git add .`
-3. Commit: `git commit -m "Initial commit"
-4. Add remote: `git remote add origin https://github.com/Mounir1412/Learnboost-IA.git`
-5. Push: `git push -u origin main` (or `master` depending on your default branch)
+Online courses created by tutors
+
+Quizzes to evaluate student understanding
+
+Easy access to learning materials
+
+Basic tracking of student progress
+
+Main Features
+
+Create and manage courses
+
+Add lessons and learning content
+
+Create quizzes with different question types
+
+Students can take quizzes and see their results
+
+Tutors can follow student progress
+
+Users
+Tutors
+
+Add and manage courses
+
+Create quizzes
+
+Review student results
+
+Students
+
+Enroll in courses
+
+Access lessons
+
+Take quizzes
+
+Goal
+
+The goal of LearnBoost is to make online tutoring simple, interactive, and effective for both tutors and students.
+
+License
+
+This project is for educational purposes.
