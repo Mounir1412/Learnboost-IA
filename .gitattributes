@@ -1,0 +1,17 @@
+# Auto-normalize text files and enforce LF in repository
+* text=auto
+
+# Force LF for common text source formats (helps avoid CRLF warnings on Windows)
+*.php text eol=lf
+*.js text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Treat common images as binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
