@@ -58,8 +58,9 @@ try {
         $id    = isset($q['id']) ? (int)$q['id'] : null;
         $label = trim($q['label'] ?? '');
         $type  = trim($q['type'] ?? '');
+        $rate  = trim($q['rate'] ?? '');
 
-        if ($label === '' || $type === '') {
+        if ($label === '' || $type === '' || $rate === '') {
             continue;
         }
 
@@ -69,27 +70,61 @@ try {
 
         $details = [];
 
-        // 1) Choices
-        if (isset($q['choices']) && is_array($q['choices']) && ($type == 'CHECKBOX' || $type == 'RADIO')) {
+        /* =========================
+           TEXT VALIDATION
+        ========================== */
+        if ($type === 'TEXT') {
+            $details['correct'] = trim($q['correct'] ?? '');
+        }
+
+        /* =========================
+           SWITCH VALIDATION
+        ========================== */
+        if ($type === 'SWITCH') {
+            // 'on' or 'off'
+            $details['correct'] = $q['switch']['on'] ?? 'off';
+        }
+
+        /* =========================
+           CHECKBOX / RADIO
+        ========================== */
+        if (
+            ($type === 'CHECKBOX' || $type === 'RADIO') &&
+            isset($q['choices']) &&
+            is_array($q['choices'])
+        ) {
             $choices = [];
 
             foreach ($q['choices'] as $choice) {
                 $choices[] = [
-                    'id'    => $choice['id'] ?? null,
-                    'label' => $choice['label'] ?? null,
-                    'correct' => $choice['correct'] ?? null
+                    'id'      => $choice['id'] ?? null,
+                    'label'   => $choice['label'] ?? null,
+                    'correct' => isset($choice['correct']) ? true : false
                 ];
             }
 
-            if (!empty($choices)) {
-                $details['choices'] = $choices;
-            }
+            $details['choices'] = $choices;
         }
 
-        // 2) Slider
-        if (isset($q['slider'])) {
-            $details['min'] = $q['slider']['min'] ?? null;
-            $details['max'] = $q['slider']['max'] ?? null;
+        /* =========================
+           SLIDER VALIDATION
+        ========================== */
+        if ($type === 'SLIDER' && isset($q['slider'])) {
+
+            $min = (int)($q['slider']['min'] ?? 0);
+            $max = (int)($q['slider']['max'] ?? 100);
+
+            $validMin = (int)($q['slider']['validMin'] ?? $min);
+            $validMax = (int)($q['slider']['validMax'] ?? $max);
+
+            if ($validMin < $min || $validMax > $max || $validMin > $validMax) {
+                throw new Exception("Invalid slider validation range for question: {$label}");
+            }
+
+            $details['min'] = $min;
+            $details['max'] = $max;
+            $details['validMin'] = $validMin;
+            $details['validMax'] = $validMax;
         }
 
         $detailsJson = json_encode($details);
@@ -100,7 +135,7 @@ try {
 
         if ($id) {
             // Update existing question
-            $question = new Question($id, $label, $type, $detailsJson);
+            $question = new Question($id, $label, $type, $rate, $detailsJson);
             $questionCtrl->update($id, $question);
 
             $quizQuestionCtrl->updateOrdering($quizId, $id, $ordering);
@@ -108,7 +143,7 @@ try {
             $newIds[] = $id;
         } else {
             // Create new question
-            $newQuestion = new Question(null, $label, $type, $detailsJson);
+            $newQuestion = new Question(null, $label, $type, $rate, $detailsJson);
             $created = $questionCtrl->save($newQuestion);
 
             $quizQuestion = new QuizQuestion(

@@ -1,6 +1,7 @@
 <?php
 
-function getBackofficeSidebar($root = "", $active = "") {
+function getBackofficeSidebar($root = "", $active = "")
+{
 
     // Define sidebar items
     $tabs = [
@@ -12,21 +13,9 @@ function getBackofficeSidebar($root = "", $active = "") {
             "label" => "Quiz",
             "link"  => "$root/views/backoffice/quiz/quiz-portal.php"
         ],
-        "products" => [
-            "label" => "Products",
-            "link"  => "#"
-        ],
-        "product-categories" => [
-            "label" => "Product Categories",
-            "link"  => "$root/views/backoffice/product-category/product-category.php"
-        ],
-        "orders" => [
-            "label" => "Orders",
-            "link"  => "#"
-        ],
-        "customers" => [
-            "label" => "Customers",
-            "link"  => "#"
+        "submissions" => [
+            "label" => "Submissions",
+            "link"  => "$root/views/backoffice/submissions/submission-portal.php"
         ],
         "reports" => [
             "label" => "Reports",
@@ -68,5 +57,3 @@ function getBackofficeSidebar($root = "", $active = "") {
 
     return $html;
 }
-
-?>
