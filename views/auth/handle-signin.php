@@ -1,19 +1,31 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../controllers/UserController.php';
+
 $controller = new UserController();
 
-$user = $controller->getByEmail($_POST['email']);
-if ($user != null) {
-    $encrypted = md5($_POST['password']);
-    if ($encrypted != $user->getPassword()) {
-        echo 'incorrect password';
+if (isset($_POST['email']) && isset($_POST['password'])) {
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    $user = $controller->getUserByEmail($email);
+
+    if ($user) {
+        // Verify password
+        if (password_verify($password, $user['password'])) {
+            // Set session
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['email'] = $user['email'];
+            $_SESSION['authenticated'] = true;
+
+            header('Location: ../../views/frontoffice');
+            exit();
+        } else {
+            echo 'Incorrect password';
+        }
     } else {
-        $_SESSION['user_id'] = $user->getId();
-        $_SESSION['email'] = $user->getEmail();
-        $_SESSION['authenticated'] = true;
-        header('Location: ../../views/frontoffice');
+        echo 'Account not found';
     }
 } else {
-    echo  'account not found';
+    echo 'Please provide email and password';
 }

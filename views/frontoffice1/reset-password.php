@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once '../../../controller/UserController.php';
+require_once '../../controllers/UserController.php';
 
 $controller = new UserController();
 $message = "";

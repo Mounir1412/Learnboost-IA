@@ -6,6 +6,8 @@ function getBackofficeSidebar($root = "", $active = "")
     // Define sidebar items
 
     $root = '/validf1';
+    $root1 = 'C:/xampp/templateback';
+
     $tabs = [
         "dashboard" => [
             "label" => "Dashboard",
@@ -14,6 +16,10 @@ function getBackofficeSidebar($root = "", $active = "")
         "users" => [
             "label" => "users",
             "link"  => "$root/views/backoffice/index1.php"
+        ],
+        "cours" => [
+            "label" => "cours",
+            "link"  => "$root1/View/Backoffice/index.php"
         ],
         "quiz" => [
             "label" => "Quiz",

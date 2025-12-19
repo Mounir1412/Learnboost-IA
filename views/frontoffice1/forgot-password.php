@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once "../../../Controller/UserController.php";
+require_once "../../Controllers/UserController.php";
 
 // PHPMailer
 require_once "../../../PHPMailer/src/PHPMailer.php";

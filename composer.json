@@ -1,0 +1,8 @@
+{
+  "name": "learnboostai/learnboostai",
+  "description": "LearnBoost AI application",
+  "type": "project",
+  "require": {
+    "phpmailer/phpmailer": "^7.0"
+  }
+}

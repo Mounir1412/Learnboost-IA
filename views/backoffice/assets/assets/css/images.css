@@ -1,0 +1,41 @@
+/* Custom Images Styling */
+
+/* Dashboard card images */
+.card-img-absolute {
+  opacity: 0.1;
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: auto;
+  max-width: 200px;
+  z-index: 0;
+}
+
+/* Logo styling */
+.sidebar-brand-wrapper img,
+.navbar-brand-wrapper img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Favicon */
+link[rel="shortcut icon"] {
+  display: block;
+}
+
+/* Ensure images load properly */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Dashboard card background images */
+.bg-gradient-primary,
+.bg-gradient-danger,
+.bg-gradient-success,
+.bg-gradient-info,
+.bg-gradient-warning {
+  position: relative;
+  overflow: hidden;
+}
