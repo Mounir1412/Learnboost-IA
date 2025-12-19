@@ -1,347 +1,239 @@
+<?php
+
+require_once __DIR__ . '/../../controllers/QuizController.php';
+require_once __DIR__ . '/../../controllers/QuestionController.php';
+require_once __DIR__ . '/../../controllers/QuizQuestionController.php';
+
+$quizId = $_GET['id'] ?? null;
+
+if (!$quizId) {
+    die("Quiz ID is required.");
+}
+
+$quizCtrl = new QuizController();
+$questionCtrl = new QuestionController();
+$quizQuestionCtrl = new QuizQuestionController();
+
+// Load quiz
+$quiz = $quizCtrl->getById($quizId);
+
+if (!$quiz) {
+    die("Quiz not found.");
+}
+
+// Load ordered questions inside quiz
+$questions = $quizQuestionCtrl->getQuestionsForQuiz($quizId);
+
+?>
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><?= htmlspecialchars($quiz->getName()) ?></title>
 
-<?php
-require_once __DIR__ . '/../../shared/getHeader.php';
-require_once __DIR__ . '/../../shared/ui/input.php';
-require_once __DIR__ . '/../../shared/ui/checkbox.php';
-require_once __DIR__ . '/../../shared/ui/radio.php';
-require_once __DIR__ . '/../../shared/ui/textarea.php';
-require_once __DIR__ . '/../../shared/ui/select.php';
-require_once __DIR__ . '/../../shared/ui/label.php';
+    <style>
+        :root {
+            --primary: #00aff2;
+        }
 
-require_once __DIR__ . '/../../../controllers/QuizController.php';
-require_once __DIR__ . '/../../../controllers/QuestionController.php';
-require_once __DIR__ . '/../../../controllers/QuizQuestionController.php';
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background-color: #f3f4f6;
+        }
 
-echo getPageHead('Update Quiz', '../../..');
+        /* Centering */
+        .page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+        }
 
-$quizController = new QuizController();
-$quizQuestionController = new QuizQuestionController();
-$questionController = new QuestionController();
+        /* Blue background panel */
+        .blue-wrapper {
+            width: 100%;
+            max-width: 900px;
+            background-color: var(--primary);
+            padding: 6px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
 
-$quiz = $quizController->getById($_GET['id']);
-$quizQuestions = $quizQuestionController->getByQuizId($quiz->getId());
-$questionIds = array_map(fn($q) => $q->getQuestionId(), $quizQuestions);
-$questions = $questionController->getByIds($questionIds);
-?>
+        /* White content card */
+        .card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 32px;
+        }
+
+        /* Question card */
+        .question-card {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 20px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+        }
+
+        .question-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 14px rgba(0, 175, 242, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Inputs */
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #d1d5db;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0, 175, 242, 0.25);
+        }
+
+        input[type="checkbox"],
+        input[type="radio"],
+        input[type="range"] {
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            cursor: pointer;
+        }
+
+        label:hover span {
+            color: var(--primary);
+        }
+
+        /* Button */
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background-color: var(--primary);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: box-shadow 0.2s ease, transform 0.15s ease;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 8px 20px rgba(0, 175, 242, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 12px rgba(0, 175, 242, 0.3);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .description {
+            color: #6b7280;
+            margin-bottom: 24px;
+        }
+    </style>
+</head>
 
 <body>
-    <div class="flex flex-1 overflow-hidden h-screen">
 
-        <?php
-        require_once __DIR__ . '/../getBackofficeSidebar.php';
-        echo getBackofficeSidebar('../../..', "quiz");
-        ?>
+<div class="page">
+    <div class="blue-wrapper">
+        <div class="card">
 
-        <div class="flex flex-col flex-1 overflow-hidden">
+            <h1><?= htmlspecialchars($quiz->getName()) ?></h1>
 
-            <?php
-            require_once __DIR__ . '/../getBackofficeHeader.php';
-            echo getBackofficeHeader();
-            ?>
+            <p class="description">
+                <?= nl2br(htmlspecialchars($quiz->getDescription())) ?>
+            </p>
 
-            <main class="flex flex-col flex-1 p-5 bg-gray-300 overflow-auto">
+            <form method="post" action="../quiz/handle-submission.php">
 
-                <form action="../../quiz/handle-update.php" method="post" class="container mx-auto">
-                    <input type="hidden" name="quiz_id" value="<?= $quiz->getId() ?>">
-                    <div>
-                        <?php
-                        echo '<div class="mb-4 p-4 border rounded-lg bg-gray-300 question-row" draggable="true">';
+                <input type="hidden" name="quiz_id" value="<?= $quizId ?>">
 
-                        renderLabel('name', 'Quiz Name');
-                        renderInput('text', 'name', $quiz->getName());
+                <?php foreach ($questions as $i => $q): ?>
+                    <?php $details = $q->getDetails(); ?>
 
-                        renderLabel('description', 'Description');
-                        renderTextarea('description', $quiz->getDescription(), 4);
-                        echo '</div>';
+                    <div class="question-card">
+                        <strong>
+                            <?= ($i + 1) . '. ' . htmlspecialchars($q->getLabel()) ?>
+                        </strong>
 
-                        ?>
-                    </div>
+                        <div style="margin-top: 10px;">
+                            <?php if ($q->getType() === 'TEXT'): ?>
+                                <input
+                                    type="text"
+                                    name="answers[<?= $q->getId() ?>]"
+                                    placeholder="Your answer...">
 
-                    <!-- QUESTIONS -->
-                    <div id="questions-container" class="mt-4 p-4 bg-gray-100 border rounded">
+                            <?php elseif ($q->getType() === 'SWITCH'): ?>
+                                <label>
+                                    <input type="checkbox" name="answers[<?= $q->getId() ?>]" value="1">
+                                    <span>Yes</span>
+                                </label>
 
-                        <?php foreach ($questions as $i => $q):
+                            <?php elseif ($q->getType() === 'CHECKBOX'): ?>
+                                <?php foreach ($q->getChoices() as $c): ?>
+                                    <label>
+                                        <input
+                                            type="checkbox"
+                                            name="answers[<?= $q->getId() ?>][]"
+                                            value="<?= htmlspecialchars($c['id']) ?>">
+                                        <span><?= htmlspecialchars($c['label']) ?></span>
+                                    </label>
+                                <?php endforeach; ?>
 
-                            $details = json_decode($q->getDetails() ?? '{}', true);
-                        ?>
+                            <?php elseif ($q->getType() === 'RADIO'): ?>
+                                <?php foreach ($q->getChoices() as $c): ?>
+                                    <label>
+                                        <input
+                                            type="radio"
+                                            name="answers[<?= $q->getId() ?>]"
+                                            value="<?= htmlspecialchars($c['id']) ?>">
+                                        <span><?= htmlspecialchars($c['label']) ?></span>
+                                    </label>
+                                <?php endforeach; ?>
 
-                            <div class="mb-4 p-4 border rounded-lg bg-gray-300 question-row" draggable="true">
-
-                                <?php renderInput('hidden', "questions[$i][id]", $q->getId()); ?>
-
-                                <div class="flex gap-2">
-                                    <div class="w-3/6">
-                                        <?php renderLabel("questions[$i][label]", "Question"); ?>
-                                        <?php renderInput("text", "questions[$i][label]", $q->getLabel()); ?>
-                                    </div>
-
-                                    <div class="w-2/6">
-                                        <?php renderLabel("questions[$i][type]", "Type"); ?>
-                                        <?php renderSelect(
-                                            "questions[$i][type]",
-                                            [
-                                                (object)['id' => 'TEXT', 'label' => 'Text'],
-                                                (object)['id' => 'SWITCH', 'label' => 'Switch'],
-                                                (object)['id' => 'CHECKBOX', 'label' => 'Checkbox'],
-                                                (object)['id' => 'RADIO', 'label' => 'Radio'],
-                                                (object)['id' => 'SLIDER', 'label' => 'Slider'],
-                                            ],
-                                            $q->getType()
-                                        ); ?>
-                                    </div>
-
-                                    <div class="w-1/6">
-                                        <?php renderLabel("questions[$i][rate]", "Rate"); ?>
-                                        <?php renderInput("number", "questions[$i][rate]", $q->getRate()); ?>
-                                    </div>
-                                </div>
-
-                                <!-- EXTRA -->
-                                <div class="extra-fields mt-3">
-
-                                    <!-- TEXT -->
-                                    <div class="text-fields p-3 bg-gray-200 rounded <?= $q->getType() === 'TEXT' ? '' : 'hidden' ?>">
-                                        <?php
-                                        renderLabel("questions[$i][correct]", "Correct Answer");
-                                        renderInput(
-                                            "text",
-                                            "questions[$i][correct]",
-                                            $details['correct'] ?? ''
-                                        );
-                                        ?>
-                                    </div>
-
-                                    <!-- SWITCH -->
-                                    <div class="switch-fields p-3 bg-gray-200 rounded <?= $q->getType() === 'SWITCH' ? '' : 'hidden' ?>">
-                                        <?php
-                                        renderLabel("", "Correct Value");
-                                        renderRadio("questions[$i][switch][on]", "on", ($details['correct'] ?? '') === 'on', "Yes");
-                                        renderRadio("questions[$i][switch][on]", "off", ($details['correct'] ?? '') === 'off', "No");
-                                        ?>
-                                    </div>
-
-                                    <!-- CHECKBOX / RADIO -->
-                                    <div class="choice-list p-3 bg-gray-200 rounded <?= in_array($q->getType(), ['CHECKBOX', 'RADIO']) ? '' : 'hidden' ?>">
-                                        <h4 class="font-semibold mb-2">Choices</h4>
-
-                                        <div class="choices-container">
-                                            <?php foreach (($details['choices'] ?? []) as $ci => $choice): ?>
-                                                <div class="choice flex gap-2 mb-2">
-                                                    <?php
-                                                    renderInput("text", "questions[$i][choices][$ci][label]", $choice['label'] ?? '');
-                                                    renderInput("text", "questions[$i][choices][$ci][id]", $choice['id'] ?? '');
-                                                    renderCheckbox(
-                                                        "questions[$i][choices][$ci][correct]",
-                                                        !empty($choice['correct']),
-                                                        'Correct'
-                                                    );
-                                                    ?>
-                                                    <button type="button" class="remove-choice bg-red-600 text-white px-2">X</button>
-                                                </div>
-                                            <?php endforeach; ?>
-                                        </div>
-
-                                        <button type="button" class="add-choice bg-blue-600 text-white px-3 py-1 mt-2 rounded">
-                                            Add Choice
-                                        </button>
-                                    </div>
-
-                                    <!-- SLIDER -->
-                                    <div class="slider-fields p-3 bg-gray-200 rounded <?= $q->getType() === 'SLIDER' ? '' : 'hidden' ?>">
-
-                                        <h4 class="font-semibold">Allowed Range</h4>
-                                        <div class="flex gap-2">
-                                            <?php
-                                            renderInput("number", "questions[$i][slider][min]", $details['min'] ?? 0);
-                                            renderInput("number", "questions[$i][slider][max]", $details['max'] ?? 100);
-                                            ?>
-                                        </div>
-
-                                        <h4 class="font-semibold mt-3">Correct Range</h4>
-                                        <div class="flex gap-2">
-                                            <?php
-                                            renderInput("number", "questions[$i][slider][validMin]", $details['validMin'] ?? 0);
-                                            renderInput("number", "questions[$i][slider][validMax]", $details['validMax'] ?? 100);
-                                            ?>
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                                <button type="button" class="delete-question mt-3 bg-red-600 text-white px-3 py-1 rounded">
-                                    Delete
-                                </button>
-
-                            </div>
-
-                        <?php endforeach; ?>
-                    </div>
-
-                    <!-- Hidden template: note __INDEX__ placeholders -->
-                    <div id="question-template" class="hidden">
-                        <div class="mb-4 p-4 border rounded-lg bg-gray-300 question-row" draggable="true">
-
-                            <div class="flex flex-row gap-2">
-
-                                <div class="w-3/6">
-                                    <?php
-                                    renderLabel('questions[__INDEX__][label]', 'Question Label');
-                                    renderInput('text', 'questions[__INDEX__][label]', '', 'Enter question label');
-                                    ?>
-                                </div>
-
-                                <div class="w-2/6">
-                                    <?php
-                                    renderLabel('questions[__INDEX__][type]', 'Question Type');
-                                    renderSelect(
-                                        'questions[__INDEX__][type]',
-                                        [
-                                            (object)['id' => 'TEXT', 'label' => 'Text'],
-                                            (object)['id' => 'SWITCH', 'label' => 'Switch'],
-                                            (object)['id' => 'CHECKBOX', 'label' => 'Checkbox'],
-                                            (object)['id' => 'RADIO',   'label' => 'Radio'],
-                                            (object)['id' => 'SLIDER',  'label' => 'Slider'],
-                                        ],
-                                        null
-                                    );
-                                    ?>
-                                </div>
-
-                                <div class="w-1/6">
-                                    <?php
-                                    renderLabel('questions[__INDEX__][rate]', 'Question Rate');
-                                    renderInput('number', 'questions[__INDEX__][rate]', 1, 'Rate', ['min' => '1', 'max' => '100']);
-                                    ?>
-                                </div>
-
-                            </div>
-
-                            <!-- EXTRA FIELDS SECTION -->
-                            <div class="extra-fields hidden mt-3">
-
-                                <!-- CORRECT ANSWER (TEXT) -->
-                                <div class="text-fields mt-3 p-3 bg-gray-200 border rounded">
-                                    <?php
-                                    renderLabel("questions[__INDEX__][correct]", "Correct answer");
-                                    renderInput(
-                                        'text',
-                                        "questions[__INDEX__][correct]",
-                                        '',
-                                        'Correct answer',
-                                        ['class' => 'border px-2 py-1 flex-1']
-                                    );
-                                    ?>
-                                </div>
-
-                                <!-- SWITCH FIELDS -->
-                                <div class="switch-fields mt-3 p-3 bg-gray-200 border rounded">
-                                    <?php
-                                    renderLabel("questions[__INDEX__][switch][on]", "Correct Answer");
-                                    renderRadio("questions[__INDEX__][switch][on]", 'on', true, "Yes");
-                                    renderRadio("questions[__INDEX__][switch][on]", 'off', false, "No");
-                                    ?>
-                                </div>
-
-                                <!-- CHOICE LIST (CHECKBOX / RADIO) -->
-                                <div class="choice-list hidden mt-2 p-3 bg-gray-200 border rounded">
-
-                                    <h4 class="font-semibold mb-2">Choices</h4>
-                                    <div class="choices-container">
-
-                                    </div>
-
-                                    <button type="button"
-                                        class="add-choice px-3 py-1 bg-blue-600 text-white rounded mt-2 hover:bg-blue-500">
-                                        Add Choice
-                                    </button>
-
-                                </div>
-
-                                <!-- SLIDER FIELDS -->
-                                <div class="slider-fields mt-3 p-3 bg-gray-200 border rounded">
-
-                                    <div class="flex flex-col gap-2">
-                                        <div class="flex flex-row flex-1 gap-2">
-                                            <div class="flex-1">
-                                                <?php
-                                                renderLabel("questions[__INDEX__][slider][min]", "Min Value");
-                                                renderInput("number", "questions[__INDEX__][slider][min]", 0);
-                                                ?>
-                                            </div>
-                                            <div class="flex-1">
-                                                <?php
-                                                renderLabel("questions[__INDEX__][slider][max]", "Max Value");
-                                                renderInput("number", "questions[__INDEX__][slider][max]", 100);
-                                                ?>
-                                            </div>
-                                        </div>
-                                        <?php
-                                        ?>
-                                        <div class="flex flex-col gap-2">
-                                            <?php
-                                            renderLabel("", "Correct range");
-                                            ?>
-                                            <div class="flex flex-row flex-1 gap-2">
-                                                <?php
-                                                renderInput("number", "questions[__INDEX__][slider][validMin]",  0);
-                                                renderInput("number", "questions[__INDEX__][slider][validMax]", 100);
-                                                ?>
-                                            </div>
-                                        </div>
-
-                                    </div>
-                                </div>
-
-                            </div>
-
-                            <button type="button"
-                                class="delete-question px-3 py-1 bg-red-600 text-white rounded hover:bg-red-500 mt-3">
-                                Delete
-                            </button>
-
+                            <?php elseif ($q->getType() === 'SLIDER'): ?>
+                                <input
+                                    type="range"
+                                    min="<?= htmlspecialchars($details['min'] ?? 0) ?>"
+                                    max="<?= htmlspecialchars($details['max'] ?? 100) ?>"
+                                    name="answers[<?= $q->getId() ?>]">
+                            <?php endif; ?>
                         </div>
                     </div>
 
-                    <!-- Hidden choice template -->
-                    <div id="choice-template" class="hidden">
-                        <div class="choice flex gap-2 mb-2">
-                            <?php
-                            renderInput('text', 'questions[__QINDEX__][choices][__CINDEX__][label]', '', 'Label', ['class' => 'border px-2 py-1 flex-1']);
-                            renderInput('text', 'questions[__QINDEX__][choices][__CINDEX__][id]', '', 'ID', ['class' => 'border px-2 py-1 flex-1']);
-                            renderCheckbox('questions[__QINDEX__][choices][__CINDEX__][correct]', '', 'Correct', ['class' => 'border px-2 py-1']);
-                            ?>
-                            <button type="button" class="remove-choice bg-red-600 text-white px-2 rounded">X</button>
-                        </div>
-                    </div>
+                <?php endforeach; ?>
 
+                <button type="submit" class="btn-primary">
+                    Submit Survey
+                </button>
 
-                    <div class="flex gap-3 mt-4">
-                        <button type="button" id="add-question" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500">
-                            Add Question
-                        </button>
-                        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">
-                            Update Quiz
-                        </button>
-                    </div>
+            </form>
 
-                </form>
-            </main>
         </div>
     </div>
-
-    <?php
-    require_once __DIR__ . '/../../shared/getScripts.php';
-    echo getScripts('../../..');
-    ?>
-
-    <script defer>
-        document.addEventListener("DOMContentLoaded", function() {
-            setupQuizDND();
-        });
-    </script>
+</div>
 
 </body>
-
 </html>

@@ -4,7 +4,7 @@
 <?php
 require_once __DIR__ . '/../shared/getHeader.php';
 require_once __DIR__ . '/../shared/redirectUnauthenticated.php';
-echo getPageHead('E-commerce', './');
+echo getPageHead('learnboost', './');
 ?>
 
 <body>

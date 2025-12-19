@@ -33,19 +33,20 @@ class SubmissionController
 
             // DATA query with search + pagination
             $dataSql = "
-            SELECT Q.name as quiz_name,
-                U.email as email,
-                 U.name as name, 
-                  U.surname as surname,
-                   S.score as score,
-                    S.createdAt as createdAt,
-                     S.quiz_id as quiz_id,
-                      S.user_id as user_id
-            FROM `submission` S, `quiz` Q, `users` U
-            WHERE S.quiz_id = Q.id
-            AND S.user_id = U.id
-            LIMIT :limit OFFSET :offset
-        ";
+    SELECT 
+        Q.name AS quiz_name,
+        U.email AS email,
+        U.nom AS nom,
+        U.prenom AS prenom,
+        S.score AS score,
+        S.createdAt AS createdAt,
+        S.quiz_id AS quiz_id,
+        S.user_id AS user_id
+    FROM submission S
+    JOIN quiz Q ON S.quiz_id = Q.id
+    JOIN user U ON S.user_id = U.id
+    LIMIT :limit OFFSET :offset
+";
 
             $stmt = $pdo->prepare($dataSql);
             $stmt->bindValue(':limit', $pageSize, PDO::PARAM_INT);
